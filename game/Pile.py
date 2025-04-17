@@ -1,0 +1,63 @@
+from abc import ABC, abstractmethod
+from .Card import *
+
+class Pile(ABC):
+    def __init__(self):
+        self.pile = []
+
+    def count(self) -> int:
+        return len(self.pile)
+    
+    def __getitem__(self, index:int) -> Card:
+        return self.pile[index]
+    
+    @staticmethod
+    @abstractmethod
+    def can_stack(a:Card, b:Card) -> bool:
+        pass
+
+    def can_add_to_empty(self, a:Card) -> bool:
+        return True
+    
+    def add(self, card:Card) -> bool:
+        if self.count() == 0:
+            if not self.can_add_to_empty(card):
+                return False
+        
+            self.pile.append(card)
+            return True
+        
+        if not self.can_stack(card, self[-1]):
+            return False
+        
+        self.pile.append(card)
+        return True
+    
+class GamePile(Pile):
+    @staticmethod
+    def can_stack(a, b):
+        return (
+            a.value.value + 1 == b.value.value and 
+            a.suit.is_red() ^ b.suit.is_red()
+        )
+    
+    def can_add_to_empty(self, a):
+        return a.value == Value.KING
+    
+class FinalPile(Pile):
+    def __init__(self, suit:Suit):
+        self.suit = suit
+        super().__init__()
+
+    @staticmethod
+    def can_stack(a, b):
+        return (
+            a.value.value == b.value.value + 1 and
+            a.suit == b.suit
+        )
+    
+    def can_add_to_empty(self, a):
+        return (
+            a.value == Value.ACE and
+            a.suit == self.suit
+        )
