@@ -19,7 +19,11 @@ class Pile(ABC):
     def can_add_to_empty(self, a:Card) -> bool:
         return True
     
-    def add(self, card:Card) -> bool:
+    def add(self, card:Card, _force:bool = False) -> bool:
+        if _force:
+            self.pile.append(card)
+            return True
+
         if self.count() == 0:
             if not self.can_add_to_empty(card):
                 return False
@@ -32,6 +36,15 @@ class Pile(ABC):
         
         self.pile.append(card)
         return True
+    
+    def find(self, card:Card) -> int:
+        try:
+            return self.pile.index(card)
+        except ValueError:
+            return -1
+        
+    def pop(self, i:int = -1) -> Card:
+        return self.pile.pop(i)
     
 class GamePile(Pile):
     @staticmethod
@@ -61,3 +74,11 @@ class FinalPile(Pile):
             a.value == Value.ACE and
             a.suit == self.suit
         )
+    
+class ReservePile(Pile):
+    @staticmethod
+    def can_stack(a, b):
+        return False
+
+    def can_add_to_empty(self, a):
+        return False

@@ -13,8 +13,8 @@ class Value(Enum):
         KING: 'K'
     }
 
-    def __str__(self):
-        return self.symbols.get(self, str(self.value))
+    def __str__(self) -> str:
+        return self.symbols.get(self.value, str(self.value))
 
 class Suit(Enum):
     SPADES = 0; CLUBS = 1
@@ -27,8 +27,8 @@ class Suit(Enum):
         DIAMONDS: "♦"
     }
 
-    def __str__(self):
-        return self.symbols[self]
+    def __str__(self) -> str:
+        return self.symbols[self.value]
     
     def is_red(self) -> bool:
         return self.value == Suit.HEARTS or self.value == Suit.DIAMONDS
@@ -38,5 +38,5 @@ class Card:
         self.value = value
         self.suit = suit
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.value}{self.suit}"
