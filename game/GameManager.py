@@ -5,7 +5,7 @@ class GameManager:
     all_cards:list[Card] = []
     game_piles:list[GamePile] = []
     final_piles:list[FinalPile] = []
-    reserve_pile:ReservePile = ReservePile()
+    reserve_pile:ReservePile|None = None
 
     def init_cards(self):
         assert len(self.all_cards) == 0
@@ -42,7 +42,8 @@ class GameManager:
             self.final_piles.append(FinalPile(suit))
 
     def init_reserve_pile(self):
-        assert self.reserve_pile.count() == 0
+        assert self.reserve_pile is None
+        self.reserve_pile = ReservePile(self.mode)
 
         while self.current_card < len(self.all_cards):
             self.reserve_pile.add(self.get_next_card(), _force=True)
@@ -52,7 +53,7 @@ class GameManager:
         self.init_final_piles()
         self.init_reserve_pile()
 
-    def __init__(self, easy_mode:bool = True):
+    def __init__(self, easy_mode:bool):
         self.mode = easy_mode
 
         self.init_cards()
@@ -63,4 +64,8 @@ class GameManager:
             return False
         
         _to.add(_from.pop(i))
+
+        _from.on_move(_removed=True)
+        _to.on_move(_removed=False)
+
         return True

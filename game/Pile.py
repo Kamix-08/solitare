@@ -46,6 +46,9 @@ class Pile(ABC):
     def pop(self, i:int = -1) -> Card:
         return self.pile.pop(i)
     
+    def on_move(self, _removed:bool = False) -> None:
+        pass
+    
 class GamePile(Pile):
     @staticmethod
     def can_stack(a, b):
@@ -76,9 +79,18 @@ class FinalPile(Pile):
         )
     
 class ReservePile(Pile):
+    def __init__(self, mode:bool):
+        self.mode = mode
+        self.current_card = 0
+        super().__init__()
+
     @staticmethod
     def can_stack(a, b):
         return False
 
     def can_add_to_empty(self, a):
         return False
+    
+    def on_move(self, _removed = False):
+        if _removed and self.current_card > 0:
+            self.current_card -= 1
