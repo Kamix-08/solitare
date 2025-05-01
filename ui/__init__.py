@@ -1,4 +1,4 @@
 from .Renderer import *
 
-def __init__() -> Renderer:
-    return Renderer()
+def __init__() -> None:
+    Renderer.init()

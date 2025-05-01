@@ -1,15 +1,16 @@
 class Renderer:
     ascii_font:dict[str,list[str]]|None = None
 
-    def init_ascii_font(self):
-        assert self.ascii_font is None
+    @staticmethod
+    def init_ascii_font() -> None:
+        assert Renderer.ascii_font is None
 
         with open("./font.txt") as f:
             lines = [line[:-1] for line in f.readlines()]
             assert len(lines) > 0
 
         charset = lines[0]
-        self.ascii_font = dict[str, list[str]]()
+        Renderer.ascii_font = dict[str, list[str]]()
 
         for i, char in enumerate(charset):
             char_lines = []
@@ -25,13 +26,35 @@ class Renderer:
 
             if char != ' ':
                 char_lines = [(line[:max_chars] + ' ' * max(max_chars - len(line), 0)) for line in char_lines]
-            self.ascii_font[char] = char_lines
+            Renderer.ascii_font[char] = char_lines
 
-    def __init__(self):
-        self.init_ascii_font()
+    @staticmethod
+    def get_ascii_text(text:str) -> str:
+        assert Renderer.ascii_font is not None
+        res:str = ""
 
-    def ascii_print(self, text:str):
         for i in range(6):
             for char in text:
-                print(self.ascii_font[char][i], end='')
-            print()
+                res += Renderer.ascii_font[char][i]
+            res += '\n'
+
+        return res
+
+    @staticmethod
+    def get_clear() -> str:
+        return "\x1b[2J\x1b[2H"
+
+    @staticmethod
+    def clear() -> None:
+        print(Renderer.get_clear())
+
+    @staticmethod
+    def init() -> None:
+        Renderer.init_ascii_font()
+
+class AsciiText:
+    def __init__(self, text:str) -> None:
+        self.text:str = text
+
+    def __str__(self) -> str:
+        return Renderer.get_ascii_text(self.text)

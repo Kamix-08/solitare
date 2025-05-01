@@ -15,31 +15,39 @@ class Colors:
     stack:list[str] = []
 
     @staticmethod
-    def set_color(color:str|tuple[int, int, int], append:bool = True):
+    def get_color(color:str|tuple[int, int, int]) -> str:
         esc_code:str = ""
 
         if type(color) == str:
             assert color in Colors.FOREGROUND_COLORS
             esc_code = Colors.FOREGROUND_COLORS[color]
 
-        else:
+        elif type(color) == tuple[int, int, int]:
             assert all([0 <= v <= 255 for v in color])
             esc_code = f"\x1b[38;2;{color[0]};{color[1]};{color[2]}m"
 
+        return esc_code
+
+    @staticmethod
+    def set_color(color:str|tuple[int, int, int], append:bool = True) -> None:
+        esc_code:str = Colors.get_color(color)
         print(esc_code, end='')
         if append:
             Colors.stack.append(esc_code)
 
     @staticmethod
-    def prev_color():
-        if len(Colors.stack < 2):
-            print(Colors.FOREGROUND_COLORS['clear'], end='')
-            return
+    def get_prev_color() -> str:
+        if len(Colors.stack) < 2:
+            return Colors.get_color('clear')
         
         Colors.stack.pop()
-        print(Colors.stack[-1], end='')
+        return Colors.stack[-1]
 
     @staticmethod
-    def clear():
-        print(Colors.FOREGROUND_COLORS['clear'], end='')
+    def prev_color() -> None:
+        print(Colors.get_prev_color(), end='')
+
+    @staticmethod
+    def clear() -> None:
+        Colors.get_color('clear')
         Colors.stack = []

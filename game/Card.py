@@ -34,7 +34,7 @@ class Suit(Enum):
         return self.value == Suit.HEARTS or self.value == Suit.DIAMONDS
     
 class Card:
-    def __init__(self, value:Value, suit:Suit):
+    def __init__(self, value:Value, suit:Suit) -> None:
         self.value = value
         self.suit = suit
 

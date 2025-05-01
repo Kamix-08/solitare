@@ -1,36 +1,47 @@
 from pynput import keyboard
 from typing import Callable
 
+Key = keyboard.Key|keyboard.KeyCode|None
+KeyLike = Key|str
+
 class InputHandler():
-    def __init__(self):
-        self.callbacks:dict[keyboard.KeyCode|str, list[Callable]] = {}
+    def __init__(self) -> None:
+        self.callbacks:dict[Key, list[Callable]] = {}
         self.listener:keyboard.Listener|None = None
 
     @staticmethod
-    def call(callbacks:list[Callable]):
+    def call(callbacks:list[Callable]) -> None:
         for callback in callbacks:
             callback()
 
-    def callback(self, key:keyboard.KeyCode|str):
+    def callback(self, key:Key) -> None:
         if key in self.callbacks:
             InputHandler.call(self.callbacks[key])
-        elif hasattr(key, 'char') and key.char in self.callbacks:
-            InputHandler.call(self.callbacks[key.char])
 
-    def add(self, key:keyboard.KeyCode|str, callback:Callable):
-        self.callbacks[key].append(callback)
+    def add(self, key:KeyLike, callback:Callable) -> None:
+        parsed_key:Key = None
 
-    def add_list(self, callbacks:dict[keyboard.KeyCode|str, Callable]):
-        for key, callback in callbacks:
-            self.add(key, callback)
+        if type(key) == str:
+            parsed_key = keyboard.KeyCode.from_char(key)
+        elif type(key) == Key:
+            parsed_key = key
 
-    def start(self):
+        if parsed_key not in self.callbacks:
+            self.callbacks[parsed_key] = []
+        self.callbacks[parsed_key].append(callback)
+
+    def add_list(self, callbacks:dict[KeyLike|None, Callable]) -> None:
+        for key, callback in callbacks.items():
+            if key is not None:
+                self.add(key, callback)
+
+    def start(self) -> None:
         assert self.listener is None
 
         self.listener = keyboard.Listener(on_release=self.callback)
         self.listener.start()
 
-    def stop(self):
+    def stop(self) -> None:
         assert self.listener is not None
 
         self.listener.stop()
