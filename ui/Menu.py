@@ -21,8 +21,6 @@ class Menu:
         if cancel is not None:
             self.ih.add(cancel[0], lambda: self.call(cancel[1]))
 
-        self.ih.start()
-
     def __str__(self) -> str:
         res:str = ""
         
@@ -42,8 +40,11 @@ class Menu:
         self.update()
 
     def call(self, callback:Callable) -> None:
-        self.ih.stop()
         callback()
+        self.ih.stop()
 
     def sumbit(self) -> None:
         self.call(self.options[self.idx][1])
+
+    def start(self) -> None:
+        self.ih.start()

@@ -13,7 +13,7 @@ class GameManager:
 
         for suit in Suit:
             for value in Value:
-                self.all_cards.append(Card(suit, value))
+                self.all_cards.append(Card(value, suit))
 
         random.shuffle(self.all_cards)
 

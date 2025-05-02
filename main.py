@@ -5,6 +5,7 @@ from ui.Renderer import Renderer, AsciiText
 from ui.Scene import Scene
 from ui.Colors import Colors
 from ui.Menu import Menu
+from ui.InputHandler import keyboard
 
 def main() -> None:
     ui_init()
@@ -18,13 +19,19 @@ def main() -> None:
     main_menu:Menu = Menu(
         update=lambda: print(main_scene), 
         highlight='green', 
-        text=[('New Game', lambda: print("new game selected"))],
-        moving=[None, None]
+        text=[
+            ('New Game', lambda: print("new game selected")),
+            ('Info', lambda: print("info")),
+            ('Exit', lambda: print("exit"))
+        ],
+        moving=[keyboard.Key.up, keyboard.Key.down],
+        sumbit=keyboard.Key.enter
     )
 
     main_scene += main_menu
 
     print(main_scene)
+    main_scene.start()
 
     gameManager = game_init(True)
 

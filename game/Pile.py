@@ -3,7 +3,7 @@ from .Card import *
 
 class Pile(ABC):
     def __init__(self) -> None:
-        self.pile = []
+        self.pile:list[Card] = []
 
     def count(self) -> int:
         return len(self.pile)
