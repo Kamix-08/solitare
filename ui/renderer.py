@@ -1,3 +1,5 @@
+from ui.Colors import Colors
+
 class Renderer:
     ascii_font:dict[str,list[str]]|None = None
 
@@ -53,8 +55,9 @@ class Renderer:
         Renderer.init_ascii_font()
 
 class AsciiText:
-    def __init__(self, text:str) -> None:
+    def __init__(self, text:str, color:str|tuple[int,int,int] = "") -> None:
         self.text:str = text
+        self.color:str|tuple[int,int,int] = color
 
     def __str__(self) -> str:
-        return Renderer.get_ascii_text(self.text)
+        return Colors.get_color(self.color) + Renderer.get_ascii_text(self.text) + Colors.get_prev_color(False)

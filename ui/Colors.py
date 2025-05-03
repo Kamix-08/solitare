@@ -16,6 +16,9 @@ class Colors:
 
     @staticmethod
     def get_color(color:str|tuple[int, int, int]) -> str:
+        if color == "":
+            return ""
+        
         esc_code:str = ""
 
         if type(color) == str:
@@ -36,11 +39,13 @@ class Colors:
             Colors.stack.append(esc_code)
 
     @staticmethod
-    def get_prev_color() -> str:
+    def get_prev_color(pop:bool = True) -> str:
         if len(Colors.stack) < 2:
             return Colors.get_color('clear')
         
-        Colors.stack.pop()
+        if pop:
+            Colors.stack.pop()
+            
         return Colors.stack[-1]
 
     @staticmethod

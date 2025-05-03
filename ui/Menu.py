@@ -2,7 +2,7 @@ from .InputHandler import InputHandler, keyboard, Callable, KeyLike
 from .Colors import Colors
 
 class Menu:
-    def __init__(self, update:Callable, highlight:str|tuple[int, int, int], text:list[tuple[str, Callable]], moving:list[KeyLike|None], sumbit:KeyLike = keyboard.Key.enter, cancel:tuple[KeyLike, Callable]|None = None) -> None:
+    def __init__(self, update:Callable, highlight:str|tuple[int, int, int], text:list[tuple[str, Callable]], moving:list[KeyLike|None] = [keyboard.Key.up, keyboard.Key.down], sumbit:KeyLike = keyboard.Key.enter, cancel:tuple[KeyLike, Callable]|None = None) -> None:
         assert len(text) != 0
         assert len(moving) == 2
 
@@ -48,3 +48,6 @@ class Menu:
 
     def start(self) -> None:
         self.ih.start()
+
+    def stop(self) -> None:
+        self.ih.stop()
