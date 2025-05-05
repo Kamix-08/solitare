@@ -60,4 +60,4 @@ class AsciiText:
         self.color:str|tuple[int,int,int] = color
 
     def __str__(self) -> str:
-        return Colors.get_color(self.color) + Renderer.get_ascii_text(self.text) + Colors.get_prev_color(False)
+        return Colors.get_color(self.color) + Renderer.get_ascii_text(self.text) + Colors.get_prev_color()

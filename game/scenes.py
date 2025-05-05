@@ -11,18 +11,14 @@ def use_scene(scene:Scene) -> None:
     scene.start()
     scenes.append(scene)
 
-def exit_game() -> None:
-    for scene in scenes:
-        scene.stop()
-
-def set_gamemode(mode:bool) -> None:
-    global game_mode
-    game_mode = mode
-
 def get_gamemode() -> bool:
     return game_mode
 
 def scene_main() -> Scene:
+    def exit_game() -> None:
+        for scene in scenes:
+            scene.stop()
+
     scene:Scene = Scene()
     scene += AsciiText("Solitare", 'blue')
 
@@ -40,6 +36,10 @@ def scene_main() -> Scene:
     return scene
 
 def scene_game_mode() -> Scene:
+    def set_gamemode(mode:bool) -> None:
+        global game_mode
+        game_mode = mode
+
     scene:Scene = Scene()
     scene += AsciiText("Difficulty", 'blue')
 

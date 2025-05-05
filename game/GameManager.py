@@ -5,7 +5,7 @@ class GameManager:
     all_cards:list[Card] = []
     game_piles:list[GamePile] = []
     final_piles:list[FinalPile] = []
-    reserve_pile:ReservePile|None = None
+    reserve_pile:tuple[ReservePile,Pile]|None = None
 
     def init_cards(self) -> None:
         assert len(self.all_cards) == 0
@@ -43,10 +43,10 @@ class GameManager:
 
     def init_reserve_pile(self) -> None:
         assert self.reserve_pile is None
-        self.reserve_pile = ReservePile(self.mode)
+        self.reserve_pile = (ReservePile(self.mode), Pile())
 
         while self.current_card < len(self.all_cards):
-            self.reserve_pile.add(self.get_next_card(), _force=True)
+            self.reserve_pile[0].add(self.get_next_card(), _force=True)
 
     def init_piles(self) -> None:
         self.init_game_piles()
@@ -69,3 +69,36 @@ class GameManager:
         _to.on_move(_removed=False)
 
         return True
+    
+    def __str__(self) -> str:
+        text:list[str] = []
+        objects:list[list[str]] = []
+
+        # reserve piles
+        objects.append(self.reserve_pile[0]._str() + self.reserve_pile[1]._str(3))
+
+        # normal piles
+        for pile in self.game_piles:
+            objects.append(pile._str())
+
+        # final piles
+        tmp:list[str] = []
+        for pile in self.final_piles:
+            tmp += pile._str()
+        objects.append(tmp)
+
+        for n in range(max([len(x) for x in objects])):
+            line:str = ""
+
+            for i, obj in enumerate(objects):
+                if i == 1 or i == len(objects) - 1:
+                    line += '\t'
+
+                if len(obj) <= n:
+                    line += ' ' * Card.WIDTH
+                    continue
+                line += obj[n]
+
+            text.append(line)
+
+        return '\n'.join(text)

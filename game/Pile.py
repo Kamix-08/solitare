@@ -5,7 +5,7 @@ class Pile(ABC):
     def __init__(self) -> None:
         self.pile:list[Card] = []
 
-    def count(self) -> int:
+    def __len__(self) -> int:
         return len(self.pile)
     
     def __getitem__(self, index:int) -> Card:
@@ -46,8 +46,22 @@ class Pile(ABC):
     def pop(self, i:int = -1) -> Card:
         return self.pile.pop(i)
     
-    def on_move(self, _removed:bool = False) -> None:
+    def on_move(self, _removed:bool) -> None:
         pass
+
+    def _str(self, count:int = -1) -> list[str]:
+        assert count > 0 or count == -1
+
+        res:list[str] = []
+        n:int = len(self)
+
+        for i, card in enumerate(self.pile, 0 if count == -1 else max(0, n - count)):
+            if i == n - 1:
+                res += card.get_full()
+                continue
+            res += card.get_header()
+
+        return res
     
 class GamePile(Pile):
     @staticmethod
@@ -78,6 +92,9 @@ class FinalPile(Pile):
             a.suit == self.suit
         )
     
+    def _str(self) -> list[str]:
+        return self[-1].get_full()
+    
 class ReservePile(Pile):
     def __init__(self, mode:bool) -> None:
         self.mode = mode
@@ -94,3 +111,6 @@ class ReservePile(Pile):
     def on_move(self, _removed = False) -> None:
         if _removed and self.current_card > 0:
             self.current_card -= 1
+
+    def _str(self) -> list[str]:
+        return self[-1].get_full()
