@@ -59,16 +59,22 @@ class Pile(ABC):
             if i == n - 1:
                 res += card.get_full()
                 continue
+            
             res += card.get_header()
 
         return res
+    
+    def get_last(self, outline:bool = True) -> list[str]:
+        if len(self) == 0:
+            return Card._get_full() if outline else []
+        return self[-1].get_full()
     
 class GamePile(Pile):
     @staticmethod
     def can_stack(a, b) -> bool:
         return (
             a.value.value + 1 == b.value.value and 
-            a.suit.is_red() ^ b.suit.is_red()
+            a.suit.is_red ^ b.suit.is_red
         )
     
     def can_add_to_empty(self, a) -> bool:
@@ -93,7 +99,7 @@ class FinalPile(Pile):
         )
     
     def _str(self) -> list[str]:
-        return self[-1].get_full()
+        return self.get_last()
     
 class ReservePile(Pile):
     def __init__(self, mode:bool) -> None:
@@ -113,4 +119,4 @@ class ReservePile(Pile):
             self.current_card -= 1
 
     def _str(self) -> list[str]:
-        return self[-1].get_full()
+        return Card._get_back()

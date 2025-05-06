@@ -7,7 +7,10 @@ from ui.Renderer import Renderer
 def main() -> None:
     ui_init()
     use_scene(scene_main())
+    
     gameManager = game_init(get_gamemode())
+    Renderer.clear()
+    print(gameManager)
 
 if __name__ == "__main__":
     main()

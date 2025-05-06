@@ -5,7 +5,7 @@ class GameManager:
     all_cards:list[Card] = []
     game_piles:list[GamePile] = []
     final_piles:list[FinalPile] = []
-    reserve_pile:tuple[ReservePile,Pile]|None = None
+    reserve_pile:tuple[ReservePile,GamePile]|None = None
 
     def init_cards(self) -> None:
         assert len(self.all_cards) == 0
@@ -43,7 +43,7 @@ class GameManager:
 
     def init_reserve_pile(self) -> None:
         assert self.reserve_pile is None
-        self.reserve_pile = (ReservePile(self.mode), Pile())
+        self.reserve_pile = (ReservePile(self.mode), GamePile())
 
         while self.current_card < len(self.all_cards):
             self.reserve_pile[0].add(self.get_next_card(), _force=True)
@@ -92,11 +92,14 @@ class GameManager:
 
             for i, obj in enumerate(objects):
                 if i == 1 or i == len(objects) - 1:
-                    line += '\t'
+                    line += ' ' * 6
+                elif i != 0:
+                    line += ' '
 
                 if len(obj) <= n:
-                    line += ' ' * Card.WIDTH
+                    line += ' ' * (Card.WIDTH + 2)
                     continue
+
                 line += obj[n]
 
             text.append(line)

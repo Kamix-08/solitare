@@ -1,3 +1,5 @@
+import re
+
 class Colors:
     FOREGROUND_COLORS:dict[str, str] = {
         "black": "\x1b[30m",
@@ -13,6 +15,10 @@ class Colors:
     }
 
     stack:list[str] = []
+
+    @staticmethod
+    def regex() -> re.Pattern:
+        return re.compile(r"\x1b\[[0-9;]*m")
 
     @staticmethod
     def get_color(color:str|tuple[int, int, int], append:bool = True) -> str:
