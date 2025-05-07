@@ -29,6 +29,7 @@ class GameManager:
 
         for i in range(1, 8):
             current_pile = GamePile()
+            current_pile.hidden = i - 1
 
             for _ in range(i):
                 current_pile.add(self.get_next_card(), _force=True)

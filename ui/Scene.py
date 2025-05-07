@@ -10,7 +10,7 @@ class Scene:
         if type(element) == str:
             element += '\n'
 
-        if type(element) == Menu:
+        elif type(element) == Menu:
             self.content.append('\n')
             self.menus.append(element)
 
