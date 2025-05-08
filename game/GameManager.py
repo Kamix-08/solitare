@@ -129,26 +129,15 @@ class GameManager:
         objects_unflattened:list[list[list[str]]] = []
         objects:list[list[str]] = []
 
-        # reserve piles
-        objects_unflattened.append([self.reserve_pile[0]._str(), self.reserve_pile[1]._str(3)])
-
-        # normal piles
-        tmp:list[list[str]] = []
-        for pile in self.game_piles:
-            tmp.append(pile._str())
-        objects_unflattened.append(tmp)
-
-        # final piles
-        tmp.clear()
-        for _pile in self.final_piles:
-            tmp.append(_pile._str())
-        objects_unflattened.append(tmp)
+        objects_unflattened.append([self.reserve_pile[0]._str(), self.reserve_pile[1]._str(3)]) # reserve
+        objects_unflattened += [[x._str()] for x in self.game_piles] # normal
+        objects_unflattened.append([x._str() for x in self.final_piles]) # final
 
         i1, i2 = self.menu.get_highlight()
         for _line in objects_unflattened[i1][i2]:
             _line = Colors.get_color(self.menu.color) + _line + Colors.get_prev_color()
 
-        objects = [line for group in objects_unflattened for line in group] # flat down
+        objects = [sum(arr, []) for arr in objects_unflattened] # flat down
 
         for n in range(max([len(x) for x in objects])):
             line:str = ""
