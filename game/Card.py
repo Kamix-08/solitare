@@ -52,26 +52,30 @@ class Card:
         return '+' + '-' * Card.WIDTH + '+'
     
     @staticmethod
-    def get_normal(text:str='') -> str:
-        return '|' + text + ' ' * (max(0, Card.WIDTH - len(Colors.regex().sub('', text)))) + '|'
+    def get_bottom() -> str:
+        return Card.get_top()
     
     @staticmethod
-    def _get_header(text:str='') -> list[str]:
-        return [Card.get_top(), Card.get_normal(text)]
+    def get_normal(text:str='', pre:str='', suf:str='') -> str:
+        return '|' + pre + text + ' ' * (max(0, Card.WIDTH - len(Colors.regex().sub('', text)))) + suf + '|'
     
     @staticmethod
-    def _get_full(text:str='') -> list[str]:
+    def _get_header(text:str='', pre:str='', suf:str='') -> list[str]:
+        return [Card.get_top(), Card.get_normal(text, pre=pre, suf=suf)]
+    
+    @staticmethod
+    def _get_full(text:str='', pre:str='', suf:str='') -> list[str]:
         # temp solution
         # the pattern is missing
-        return [Card.get_top(), Card.get_normal(text)] + [Card.get_normal()] * (Card.HEIGHT - 1) + [Card.get_top()]
+        return [Card.get_top(), Card.get_normal(text, pre=pre, suf=suf)] + [Card.get_normal()] * (Card.HEIGHT - 1) + [Card.get_bottom()]
     
     @staticmethod
-    def _get_back_header() -> list[str]:
-        return Card.get_header('* ' * math.ceil(Card.WIDTH/2))
+    def _get_back_header(color:str|tuple[int,int,int]='green') -> list[str]:
+        return Card._get_header('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False))
 
     @staticmethod
-    def _get_back() -> list[str]:
-        return [Card.get_top()] + ([Card.get_normal('* ' * math.ceil(Card.WIDTH/2)), Card.get_normal(' *' * math.ceil(Card.WIDTH/2))] * math.ceil(Card.HEIGHT/2))[:Card.HEIGHT] + [Card.get_top()]
+    def _get_back(color:str|tuple[int,int,int]='green') -> list[str]:
+        return [Card.get_top()] + ([Card.get_normal('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False)), Card.get_normal(' *' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False))] * math.ceil(Card.HEIGHT/2))[:Card.HEIGHT] + [Card.get_bottom()]
 
     def get_header(self) -> list[str]:
         return Card._get_header(str(self))

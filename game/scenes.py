@@ -60,7 +60,7 @@ def scene_info() -> Scene:
     scene:Scene = Scene()
     scene += AsciiText("Info", 'blue')
 
-    scene += f"This solitare game has been made by Kamil Pawłowski ({Colors.get_color('cyan')}https://github.com/Kamix-08{Colors.get_prev_color(False)})."
+    scene += f"This solitare game has been made by Kamil Pawłowski ({Colors.get_color('cyan')}https://github.com/Kamix-08{Colors.get_prev_color()})."
     scene += "The program has been developed as a part of the Gigathon 2025 competition."
     scene += "\nThe game is a simple solitare game, featuring two difficulty modes:"
     scene += "Easy allows for drawing one card at a time, while hard only allows three cards at a time."

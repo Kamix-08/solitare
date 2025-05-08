@@ -1,4 +1,4 @@
-from ui.Colors import Colors
+from .Colors import Colors
 
 class Renderer:
     ascii_font:dict[str,list[str]]|None = None
@@ -61,3 +61,22 @@ class AsciiText:
 
     def __str__(self) -> str:
         return Colors.get_color(self.color) + Renderer.get_ascii_text(self.text) + Colors.get_prev_color()
+    
+class Button:
+    PADDING_Y:int = 1
+
+    def __init__(self, text:str, width:int) -> None:
+        self.text:str = text
+        self.width:int = width
+
+    def __str__(self):
+        l_pad:int = (self.width - len(self.text))//2
+        line:str = '+' + '-' * self.width + '+\n'
+        empty:str = ('|' + ' ' * self.width + '|\n') * Button.PADDING_Y
+
+        return line + empty + '|' + ' ' * l_pad + self.text + ' ' * (self.width - len(self.text) - l_pad) + '|\n' + empty + line[:-1]
+    
+    @staticmethod
+    def get_buttons(texts:list[str], pad:int=2) -> list["Button"]:
+        max_len:int = max([len(x) for x in texts]) + 2 * pad
+        return [Button(t, max_len) for t in texts]

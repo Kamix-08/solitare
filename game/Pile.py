@@ -25,7 +25,7 @@ class Pile(ABC):
             self.pile.append(card)
             return True
 
-        if self.count() == 0:
+        if len(self) == 0:
             if not self.can_add_to_empty(card):
                 return False
         
@@ -99,7 +99,7 @@ class FinalPile(Pile):
             (a.suit == self.suit)
         )
     
-    def _str(self) -> list[str]:
+    def _str(self, count:int = -1, hidden:bool = True) -> list[str]:
         return self.get_last()
     
 class ReservePile(Pile):
@@ -119,5 +119,5 @@ class ReservePile(Pile):
         if _removed and self.current_card > 0:
             self.current_card -= 1
 
-    def _str(self) -> list[str]:
+    def _str(self, count:int = -1, hidden:bool = True) -> list[str]:
         return Card._get_back()

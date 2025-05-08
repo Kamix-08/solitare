@@ -1,5 +1,6 @@
 from .InputHandler import InputHandler, keyboard, Callable, KeyLike
 from .Colors import Colors
+from .Renderer import Button
 from typing import Any
 
 class BaseMenu:
@@ -8,10 +9,10 @@ class BaseMenu:
             highlight:str|tuple[int,int,int], 
             text:list[tuple[Any,Callable]], 
             moving:list[KeyLike|None], 
-            sumbit:KeyLike, 
-            cancel:tuple[KeyLike,Callable]|None,
+            sumbit:KeyLike=keyboard.Key.enter, 
+            cancel:tuple[KeyLike,Callable]|None=None,
             other:dict[KeyLike,Callable]|None=None) -> None:
-        
+                
         self.idx:int = 0
         self.options:list[tuple[Any,Callable]] = text
         self.update:Callable = update
@@ -58,7 +59,8 @@ class Menu(BaseMenu):
         
         assert len(text) != 0
 
-        super().__init__(update, highlight, text, moving, sumbit, cancel)
+        self.buttons:list[Button] = Button.get_buttons([x.strip() for x, _ in text])
+        super().__init__(update, highlight, [(('\n' if t[0] == '\n' else '') + str(self.buttons[i]) + ('\n' if t[-1] == '\n' else ''), f) for i, (t, f) in enumerate(text)], [x for x in moving], sumbit, cancel)
 
     def __str__(self) -> str:
         res:str = ""
@@ -77,29 +79,39 @@ class Menu(BaseMenu):
 class HorizontalMenu(BaseMenu):
     def __init__(self, 
             update:Callable, 
-            highlight:str|tuple[int,int,int], 
-            text:list[list[tuple[list[str],Callable]]], 
+            highlight:str|tuple[int,int,int],
+            get_structure:Callable[[], list[int]],
+            execute:Callable[[tuple[int,int]], Any],
             moving:list[KeyLike] = [keyboard.Key.left, keyboard.Key.right, keyboard.Key.up, keyboard.Key.down], 
-            sumbit:KeyLike=keyboard.Key.enter) -> None:
-        
+            sumbit:KeyLike = keyboard.Key.enter) -> None:
+
         assert len(moving) == 4
 
-        super().__init__(update, highlight, [(..., lambda: ...)] * len(text), moving[:2], sumbit, other={
+        super().__init__(update, highlight, [], moving[:2], sumbit, other={
             moving[2]: lambda: self.change_secondary_selection(-1),
             moving[3]: lambda: self.change_secondary_selection( 1)
         })
 
-        self.idxs:list[int] = [0] * len(text)
-        self.text:list[list[tuple[list[str], Callable]]] = text
+        self.get_struct:Callable[[], list[int]] = get_structure
+        self.execute:Callable[[tuple[int,int]], Any] = execute
+        self.idxs:list[int] = [0] * len(self.get_struct())
+
+    def change_selection(self, change:int, update:bool = True) -> None:
+        self.idx = (self.idx + change) % len(self.get_struct())
+
+        while self.get_struct()[self.idx] == 0:
+            self.change_selection(change//abs(change), False)
+
+        if update:
+            self.update()
 
     def change_secondary_selection(self, change:int) -> None:
         i1, i2 = self.get_highlight()
-        self.idxs[i1] = (i2 + change) % len(self.text[i1])
+        self.idxs[i1] = (i2 + change) % self.get_struct()[i1]
         self.update()
 
     def submit(self) -> None:
-        i1, i2 = self.get_highlight()
-        self.text[i1][i2][1]()
+        self.execute(self.get_highlight())
 
     def get_highlight(self) -> tuple[int,int]:
         return (self.idx, self.idxs[self.idx])

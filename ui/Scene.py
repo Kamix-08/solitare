@@ -1,12 +1,14 @@
 from .Menu import Menu
-from .Renderer import AsciiText, Renderer
+from .Renderer import AsciiText, Button, Renderer
+
+ALLOWED = str|Menu|AsciiText|Button
 
 class Scene:
     def __init__(self) -> None:
-        self.content:list[str|Menu|AsciiText] = []
+        self.content:list[ALLOWED] = []
         self.menus:list[Menu] = []
 
-    def __iadd__(self, element:str|Menu|AsciiText):
+    def __iadd__(self, element:ALLOWED):
         if type(element) == str:
             element += '\n'
 
