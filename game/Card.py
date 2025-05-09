@@ -71,11 +71,11 @@ class Card:
     
     @staticmethod
     def _get_back_header(color:str|tuple[int,int,int]='green') -> list[str]:
-        return Card._get_header('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False))
+        return Card._get_header('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color), suf=Colors.get_prev_color())
 
     @staticmethod
     def _get_back(color:str|tuple[int,int,int]='green') -> list[str]:
-        return [Card.get_top()] + ([Card.get_normal('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False)), Card.get_normal(' *' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color, False), suf=Colors.get_prev_color(False))] * math.ceil(Card.HEIGHT/2))[:Card.HEIGHT] + [Card.get_bottom()]
+        return [Card.get_top()] + ([Card.get_normal('* ' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color), suf=Colors.get_prev_color()), Card.get_normal(' *' * math.ceil(Card.WIDTH/2), pre=Colors.get_color(color), suf=Colors.get_prev_color())] * math.ceil(Card.HEIGHT/2))[:Card.HEIGHT] + [Card.get_bottom()]
 
     def get_header(self) -> list[str]:
         return Card._get_header(str(self))

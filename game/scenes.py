@@ -3,7 +3,7 @@ from ui.Renderer import AsciiText
 from ui.Menu import Menu
 from ui.Colors import Colors
 
-game_mode:bool = False
+game_mode:bool|None = None
 scenes:list[Scene] = []
 
 def use_scene(scene:Scene) -> None:
@@ -11,7 +11,7 @@ def use_scene(scene:Scene) -> None:
     scene.start()
     scenes.append(scene)
 
-def get_gamemode() -> bool:
+def get_gamemode() -> bool|None:
     return game_mode
 
 def scene_main() -> Scene:

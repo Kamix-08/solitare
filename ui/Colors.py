@@ -46,11 +46,9 @@ class Colors:
 
     @staticmethod
     def get_prev_color(pop:bool = True) -> str:
-        if pop:
-            Colors.stack.pop()
-            
-        if len(Colors.stack) == 0:
-            return Colors.get_color('clear', False)
+        assert len(Colors.stack) != 0
+        if pop: Colors.stack.pop()
+        if len(Colors.stack) == 0: return Colors.get_color('default', False)
         return Colors.stack[-1]
 
     @staticmethod

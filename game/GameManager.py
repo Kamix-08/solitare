@@ -1,5 +1,6 @@
 from .Pile import *
 from ui.Menu import HorizontalMenu
+from ui.Renderer import Renderer
 import random
 
 class GameManager:
@@ -63,7 +64,7 @@ class GameManager:
         self.selected:tuple[int,int]|None = None
         self.menu:HorizontalMenu = HorizontalMenu(
             lambda: print(self),
-            'blue',
+            ('blue', 'magenta'),
             self.get_structure,
             lambda x: self.execute(x)
         )
@@ -124,6 +125,8 @@ class GameManager:
         return self.move_card(-1 if self.selected[0] == 8 else self.selected[1], _from, _to)
     
     def __str__(self) -> str:
+        print(f"highligh: {self.menu.get_highlight()}")
+
         text:list[str] = []
 
         objects_unflattened:list[list[list[str]]] = []
@@ -133,9 +136,23 @@ class GameManager:
         objects_unflattened += [[x._str()] for x in self.game_piles] # normal
         objects_unflattened.append([x._str() for x in self.final_piles]) # final
 
-        i1, i2 = self.menu.get_highlight()
-        for _line in objects_unflattened[i1][i2]:
-            _line = Colors.get_color(self.menu.color) + _line + Colors.get_prev_color()
+        def add_color(color:str|tuple[int,int,int], pos:tuple[int,int]) -> None:
+            i1, i2 = pos
+
+            def get_line(_line:str) -> str:
+                return Colors.get_color(color) + _line.replace(Colors.get_color('default'), Colors.get_color(color)) + Colors.get_prev_color()
+
+            match i1:
+                case 0 | 8:
+                    for j, _line in enumerate(objects_unflattened[i1][i2]):
+                        objects_unflattened[i1][i2][j] = get_line(_line)
+                case _:
+                    for j in range(i2*2, len(objects_unflattened[i1][0]) if i2 == len(self.game_piles[i1-1]) - 1 else (i2+1)*2):
+                        _line = objects_unflattened[i1][0][j]
+                        objects_unflattened[i1][0][j] = get_line(_line)
+
+        if self.selected is not None: add_color(self.menu.color_secondary, self.selected)
+        add_color(self.menu.color, self.menu.get_highlight())
 
         objects = [sum(arr, []) for arr in objects_unflattened] # flat down
 
