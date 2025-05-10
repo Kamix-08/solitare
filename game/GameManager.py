@@ -1,7 +1,6 @@
 from .Pile import *
 from ui.Menu import HorizontalMenu
 from ui.Renderer import Renderer
-import random
 
 class GameManager:
     all_cards:list[Card] = []
@@ -14,7 +13,9 @@ class GameManager:
         self.current_card = 0
 
         for suit in Suit:
+            if suit == Suit.NONE: continue
             for value in Value:
+                if value == Value.NONE: continue
                 self.all_cards.append(Card(value, suit))
 
         random.shuffle(self.all_cards)
@@ -42,10 +43,12 @@ class GameManager:
         assert len(self.final_piles) == 0
 
         for suit in Suit:
+            if suit == Suit.NONE: continue
             self.final_piles.append(FinalPile(suit))
 
     def init_reserve_pile(self, mode:bool) -> None:
-        self.reserve_pile = (ReservePile(mode), GamePile())
+        target:GamePile = GamePile()
+        self.reserve_pile = (ReservePile(mode, target), target)
 
         while self.current_card < len(self.all_cards):
             self.reserve_pile[0].add(self.get_next_card(), _force=True)
@@ -84,55 +87,69 @@ class GameManager:
                 if self.selected is not None: return # do nothing
                 if len(self.reserve_pile[i]) == 0: return # do nothing
                 if i == 0: # draw
-                    for _ in range(1 if self.mode else 3):
+                    for _ in range(1 if self.mode else max(1, min(3, len(self.reserve_pile[1]) - 1))):
                         self.move_card(-1, self.reserve_pile[0], self.reserve_pile[1], True)
                 else: self.selected = choice # select
             case 8: # final
                 if self.selected is None:
-                    if len(self.final_piles[i]) == 0: return # do nothing
-                    self.selected = choice # select
+                    if len(self.final_piles[i]) != 0: self.selected = choice # select
                 else:
                     self.move_selected(self.final_piles[i]) # move
             case _: # game
-                if i < self.game_piles[i].hidden: return # do nothing
-                if self.selected is None: self.selected = choice # select
-                else: self.game_piles[choice[0] - 1] # move
+                i1:int = choice[0] - 1
+                if i < self.game_piles[i1].hidden: 
+                    self.selected = None
+                    return # do nothing
+                if self.selected is None and len(self.game_piles[i1]) != 0: self.selected = choice # select
+                elif self.selected is not None:
+                    self.move_selected(self.game_piles[i1]) # move
 
     def move_card(self, i:int, _from:Pile, _to:Pile, force:bool = False) -> bool:
         if len(_from) == 0: return False
         
         if not force:
-            if len(_to) == 0 and not _to.can_add_to_empty(_from[i]): return False
-            if not _to.can_stack(_from[i], _to[-1]): return False
+            if len(_to) == 0 and not _to.can_add_to_empty(_from[i]):    return False
+            if len(_to) != 0 and not _to.can_stack(_from[i], _to[-1]):  return False
+
+        last:bool = _from[i] == _from[-1]
         
         _to.add(_from.pop(i), _force=force)
 
         _from.on_move(_removed=True)
         _to.on_move(_removed=False)
 
+        if not last:
+            self.move_card(i, _from, _to, force)
+
         return True
     
     def move_selected(self, _to:Pile) -> bool:
         assert self.selected is not None
+        i1, i2 = self.selected
 
         _from:Pile
 
-        match self.selected[0]:
+        match i1:
             case 0: _from = self.reserve_pile[1]
-            case 8: _from = self.final_piles[self.selected[1]]
-            case _: _from = self.game_piles[self.selected[0] - 1]
+            case 8: _from = self.final_piles[i2]
+            case _: _from = self.game_piles[i1 - 1]
 
-        return self.move_card(-1 if self.selected[0] == 8 else self.selected[1], _from, _to)
+        res:bool = self.move_card(-1 if i1 == 0 or i1 == 8 else i2, _from, _to)
+        if res and _from.hidden >= len(_from) - 1: 
+            _from.hidden -= 1 
+
+        self.menu.idxs[self.selected[0]] = 0
+        self.selected = None
+
+        return res
     
     def __str__(self) -> str:
-        print(f"highligh: {self.menu.get_highlight()}")
-
         text:list[str] = []
 
         objects_unflattened:list[list[list[str]]] = []
         objects:list[list[str]] = []
 
-        objects_unflattened.append([self.reserve_pile[0]._str(), self.reserve_pile[1]._str(3)]) # reserve
+        objects_unflattened.append([self.reserve_pile[0]._str(), self.reserve_pile[1]._str(3, outline=False)]) # reserve
         objects_unflattened += [[x._str()] for x in self.game_piles] # normal
         objects_unflattened.append([x._str() for x in self.final_piles]) # final
 
@@ -173,4 +190,5 @@ class GameManager:
 
             text.append(line)
 
-        return '\n'.join(text)
+        # return '\n'.join(text)
+        return Renderer.get_clear() + '\n'.join(text)

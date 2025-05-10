@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from .Card import *
+import random, copy
 
 class Pile(ABC):
     def __init__(self) -> None:
@@ -48,13 +49,14 @@ class Pile(ABC):
     def on_move(self, _removed:bool) -> None:
         pass
 
-    def _str(self, count:int = -1, hidden:bool = True) -> list[str]:
+    def _str(self, count:int = -1, hidden:bool = True, outline:bool = True) -> list[str]:
         assert count > 0 or count == -1
 
         res:list[str] = []
         n:int = len(self)
+        start:int = 0 if count == -1 else max(0, n - count)
 
-        for i, card in enumerate(self.pile, 0 if count == -1 else max(0, n - count)):
+        for i, card in enumerate(self.pile[start:], start):
             is_hidden:bool = hidden and i < self.hidden
 
             if i == n - 1:
@@ -63,11 +65,14 @@ class Pile(ABC):
             
             res += Card._get_back_header() if is_hidden else card.get_header()
 
+        if len(res) == 0 and outline:
+            res = Card._get_full()
+
         return res
     
-    def get_last(self, outline:bool = True, hidden:bool = True) -> list[str]:
+    def get_last(self, outline:bool = True, hidden:bool = True, text:str='') -> list[str]:
         if hidden and self.hidden >= len(self): return Card._get_back()
-        if len(self) == 0: return Card._get_full() if outline else []
+        if len(self) == 0: return Card._get_full(text) if outline else []
         return self[-1].get_full()
     
 class GamePile(Pile):
@@ -99,14 +104,16 @@ class FinalPile(Pile):
             (a.suit == self.suit)
         )
     
-    def _str(self, count:int = -1, hidden:bool = True) -> list[str]:
-        return self.get_last()
+    def _str(self, count:int = -1, hidden:bool = True, outline:bool = True) -> list[str]:
+        return self.get_last(text=str(self.suit))
     
 class ReservePile(Pile):
-    def __init__(self, mode:bool) -> None:
+    def __init__(self, mode:bool, target:GamePile) -> None:
         self.mode = mode
-        self.current_card = 0
+        self.current_card:int = 0
+        self.target:GamePile = target
         super().__init__()
+        self.pile.insert(0, Card.empty()) # buffer
 
     @staticmethod
     def can_stack(a, b) -> bool:
@@ -116,8 +123,17 @@ class ReservePile(Pile):
         return False
     
     def on_move(self, _removed = False) -> None:
-        if _removed and self.current_card > 0:
-            self.current_card -= 1
+        if _removed:
+            if len(self) == 0:
+                self.pile = copy.deepcopy(self.target.pile[:-1]) # skip the buffer
+                random.shuffle(self.pile)
+                self.target.pile = []
+                self.current_card = 0
+                self.pile.insert(0, Card.empty()) # add the buffer
+                return
 
-    def _str(self, count:int = -1, hidden:bool = True) -> list[str]:
-        return Card._get_back()
+            if self.current_card > 0:
+                self.current_card -= 1
+
+    def _str(self, count:int = -1, hidden:bool = True, outline:bool = True) -> list[str]:
+        return Card._get_back() if len(self) != 1 else Card._get_full()

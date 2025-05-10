@@ -22,7 +22,7 @@ class BaseMenu:
         self.ih.add_list({
             moving[0]: lambda: self.change_selection(-1),
             moving[1]: lambda: self.change_selection( 1),
-            sumbit:    lambda: self.sumbit()
+            sumbit:    lambda: self.submit()
         })
         
         if other is not None:
@@ -39,7 +39,7 @@ class BaseMenu:
         callback()
         self.ih.stop()
 
-    def sumbit(self) -> None:
+    def submit(self) -> None:
         self.call(self.options[self.idx][1])
 
     def start(self) -> None:
@@ -100,9 +100,6 @@ class HorizontalMenu(BaseMenu):
     def change_selection(self, change:int, update:bool = True) -> None:
         self.idx = (self.idx + change) % len(self.get_struct())
 
-        while self.get_struct()[self.idx] == 0:
-            self.change_selection(change//abs(change), False)
-
         if update:
             self.update()
 
@@ -113,6 +110,7 @@ class HorizontalMenu(BaseMenu):
 
     def submit(self) -> None:
         self.execute(self.get_highlight())
+        self.update()
 
     def get_highlight(self) -> tuple[int,int]:
         return (self.idx, self.idxs[self.idx])

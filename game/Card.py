@@ -6,28 +6,31 @@ class Value(Enum):
     ACE  = 1; TWO = 2;  THREE = 3;  FOUR  = 4
     FIVE = 5; SIX = 6;  SEVEN = 7;  EIGHT = 8
     NINE = 9; TEN = 10; JACK  = 11; QUEEN = 12
-    KING = 13
+    KING = 13; NONE = 42
 
     def __str__(self) -> str:
         symbols = {
             Value.ACE: 'A',
             Value.JACK: 'J',
             Value.QUEEN: 'Q',
-            Value.KING: 'K'
+            Value.KING: 'K',
+            Value.NONE: '-'
         }
 
         return symbols.get(self, str(self.value))
 
 class Suit(Enum):
     SPADES = 0; CLUBS = 1
-    HEARTS = 2; DIAMONDS = 3
+    HEARTS = 2; DIAMONDS = 3;
+    NONE = 42
 
     def __str__(self) -> str:
         symbols = {
             Suit.SPADES: "♠",
             Suit.CLUBS: "♣",
             Suit.HEARTS: "♥",
-            Suit.DIAMONDS: "♦"
+            Suit.DIAMONDS: "♦",
+            Suit.NONE: '-'
         }
 
         return symbols[self]
@@ -82,3 +85,7 @@ class Card:
     
     def get_full(self) -> list[str]:
         return Card._get_full(str(self))
+    
+    @staticmethod
+    def empty() -> "Card":
+        return Card(Value.NONE, Suit.NONE)
