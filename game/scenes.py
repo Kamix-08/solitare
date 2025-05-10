@@ -14,11 +14,11 @@ def use_scene(scene:Scene) -> None:
 def get_gamemode() -> bool|None:
     return game_mode
 
-def scene_main() -> Scene:
-    def exit_game() -> None:
-        for scene in scenes:
-            scene.stop()
+def exit_game() -> None:
+    for scene in scenes:
+        scene.stop()
 
+def scene_main() -> Scene:
     scene:Scene = Scene()
     scene += AsciiText("Solitare", 'blue')
 
@@ -70,6 +70,23 @@ def scene_info() -> Scene:
         highlight='green',
         text=[
             ('Back', lambda: use_scene(scene_main()))
+        ]
+    )
+
+    scene += menu
+    return scene
+
+def scene_end() -> Scene:
+    scene:Scene = Scene()
+    scene += AsciiText("You won!", 'blue')
+
+    menu:Menu = Menu(
+        update=lambda: print(scene), 
+        highlight='green',
+        text=[
+            ('Play Again',  lambda: use_scene(scene_game_mode())),
+            ('Main Menu',   lambda: use_scene(scene_main())),
+            ('\nExit',      lambda: exit_game())
         ]
     )
 

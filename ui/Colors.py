@@ -11,7 +11,9 @@ class Colors:
         "cyan": "\x1b[36m",
         "white": "\x1b[37m",
         "default": "\x1b[39m",
-        "clear": "\x1b[0m"
+        "clear": "\x1b[0m",
+        "bold": "\x1b[1m",
+        "dim": "\x1b[2m"
     }
 
     stack:list[str] = []

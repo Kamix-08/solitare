@@ -122,7 +122,7 @@ class ReservePile(Pile):
     def can_add_to_empty(self, a) -> bool:
         return False
     
-    def on_move(self, _removed = False) -> None:
+    def on_move(self, _removed) -> None:
         if _removed:
             if len(self) == 0:
                 self.pile = copy.deepcopy(self.target.pile[:-1]) # skip the buffer

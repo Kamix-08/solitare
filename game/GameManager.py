@@ -1,5 +1,5 @@
 from .Pile import *
-from ui.Menu import HorizontalMenu
+from ui.Menu import HorizontalMenu, keyboard
 from ui.Renderer import Renderer
 
 class GameManager:
@@ -60,6 +60,8 @@ class GameManager:
 
     def __init__(self, easy_mode:bool) -> None:
         self.mode:bool = easy_mode
+        self.won:bool = False
+        self.escs:int = 0
 
         self.init_cards()
         self.init_piles(easy_mode)
@@ -69,7 +71,8 @@ class GameManager:
             lambda: print(self),
             ('blue', 'magenta'),
             self.get_structure,
-            lambda x: self.execute(x)
+            lambda x: self.execute(x),
+            cancel=(keyboard.Key.esc, self.handle_esc)
         )
 
     def get_structure(self) -> list[int]:
@@ -87,7 +90,7 @@ class GameManager:
                 if self.selected is not None: return # do nothing
                 if len(self.reserve_pile[i]) == 0: return # do nothing
                 if i == 0: # draw
-                    for _ in range(1 if self.mode else max(1, min(3, len(self.reserve_pile[1]) - 1))):
+                    for _ in range(1 if self.mode else max(1, min(3, len(self.reserve_pile[0]) - 1))):
                         self.move_card(-1, self.reserve_pile[0], self.reserve_pile[1], True)
                 else: self.selected = choice # select
             case 8: # final
@@ -121,6 +124,16 @@ class GameManager:
         if not last:
             self.move_card(i, _from, _to, force)
 
+        if type(_to) != FinalPile:
+            return True
+        
+        for pile in self.final_piles:
+            if len(pile) == 0 or pile[-1].value != Value.KING:
+                return True
+            
+        self.won = True
+        self.menu.stop()
+
         return True
     
     def move_selected(self, _to:Pile) -> bool:
@@ -135,13 +148,22 @@ class GameManager:
             case _: _from = self.game_piles[i1 - 1]
 
         res:bool = self.move_card(-1 if i1 == 0 or i1 == 8 else i2, _from, _to)
-        if res and _from.hidden >= len(_from) - 1: 
-            _from.hidden -= 1 
+        if res: _from.hidden = min(_from.hidden, len(_from) - 1)
 
         self.menu.idxs[self.selected[0]] = 0
         self.selected = None
 
         return res
+    
+    def handle_esc(self) -> None:
+        if self.selected is not None:
+            self.selected = None
+            self.escs = 0
+            return
+        
+        self.escs += 1
+        if self.escs >= 2:
+            self.menu.stop()
     
     def __str__(self) -> str:
         text:list[str] = []
@@ -157,14 +179,20 @@ class GameManager:
             i1, i2 = pos
 
             def get_line(_line:str) -> str:
-                return Colors.get_color(color) + _line.replace(Colors.get_color('default'), Colors.get_color(color)) + Colors.get_prev_color()
+                code:str = Colors.get_color(color)
+                return code + Colors.get_color('bold',False) + Colors.regex().sub(code, _line) + Colors.get_color('clear',False) + Colors.get_prev_color()
 
             match i1:
                 case 0 | 8:
-                    for j, _line in enumerate(objects_unflattened[i1][i2]):
-                        objects_unflattened[i1][i2][j] = get_line(_line)
+                    if i1 == 0 and i2 == 1:
+                        for j in range(len(objects_unflattened[0][1]) - Card.HEIGHT - 2, len(objects_unflattened[0][1])):
+                            _line = objects_unflattened[0][1][j]
+                            objects_unflattened[0][1][j] = get_line(_line)
+                    else:
+                        for j, _line in enumerate(objects_unflattened[i1][i2]):
+                            objects_unflattened[i1][i2][j] = get_line(_line)
                 case _:
-                    for j in range(i2*2, len(objects_unflattened[i1][0]) if i2 == len(self.game_piles[i1-1]) - 1 else (i2+1)*2):
+                    for j in range(i2*2, len(objects_unflattened[i1][0]) if i2 == len(self.game_piles[i1-1]) - 1 or len(self.game_piles[i1-1]) == 0 else (i2+1)*2):
                         _line = objects_unflattened[i1][0][j]
                         objects_unflattened[i1][0][j] = get_line(_line)
 
