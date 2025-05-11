@@ -3,11 +3,6 @@ from ui.Menu import HorizontalMenu, keyboard
 from ui.Renderer import Renderer
 
 class GameManager:
-    all_cards:list[Card] = []
-    game_piles:list[GamePile] = []
-    final_piles:list[FinalPile] = []
-    reserve_pile:tuple[ReservePile,GamePile]
-
     def init_cards(self) -> None:
         assert len(self.all_cards) == 0
         self.current_card = 0
@@ -39,6 +34,31 @@ class GameManager:
 
             self.game_piles.append(current_pile)
 
+    def __init__(self, easy_mode:bool) -> None:
+        self.all_cards:list[Card] = []
+        self.game_piles:list[GamePile] = []
+        self.final_piles:list[FinalPile] = []
+        self.reserve_pile:tuple[ReservePile,GamePile]
+
+        self.mode:bool = easy_mode
+        self.won:bool = False
+        self.escs:int = 0
+
+        self.init_cards()
+        self.init_piles(easy_mode)
+
+        self.selected:tuple[int,int]|None = None
+        self.menu:HorizontalMenu = HorizontalMenu(
+            lambda: print(self),
+            ('blue', 'magenta'),
+            self.get_structure,
+            lambda x: self.execute(x),
+            other={
+                keyboard.Key.esc: self.handle_esc,
+                keyboard.Key.tab: self.solve
+            }
+        )
+
     def init_final_piles(self) -> None:
         assert len(self.final_piles) == 0
 
@@ -58,26 +78,9 @@ class GameManager:
         self.init_final_piles()
         self.init_reserve_pile(mode)
 
-    def __init__(self, easy_mode:bool) -> None:
-        self.mode:bool = easy_mode
-        self.won:bool = False
-        self.escs:int = 0
-
-        self.init_cards()
-        self.init_piles(easy_mode)
-
-        self.selected:tuple[int,int]|None = None
-        self.menu:HorizontalMenu = HorizontalMenu(
-            lambda: print(self),
-            ('blue', 'magenta'),
-            self.get_structure,
-            lambda x: self.execute(x),
-            cancel=(keyboard.Key.esc, self.handle_esc)
-        )
-
     def get_structure(self) -> list[int]:
         return [
-            len(self.reserve_pile),
+            1 + int(len(self.reserve_pile[1]) != 0),
             *[len(pile) for pile in self.game_piles], # unpacking
             len(self.final_piles)
         ]
@@ -131,9 +134,7 @@ class GameManager:
             if len(pile) == 0 or pile[-1].value != Value.KING:
                 return True
             
-        self.won = True
-        self.menu.stop()
-
+        self.end()
         return True
     
     def move_selected(self, _to:Pile) -> bool:
@@ -163,7 +164,21 @@ class GameManager:
         
         self.escs += 1
         if self.escs >= 2:
-            self.menu.stop()
+            self.end(False)
+        else:
+            print("Press ESC again to exit...")
+
+    def end(self, won:bool = True) -> None:
+        self.won = won
+        self.menu.stop()
+
+    def solve(self) -> bool:
+        for pile in self.game_piles:
+            if pile.hidden > 0:
+                return False
+        
+        self.end()
+        return True
     
     def __str__(self) -> str:
         text:list[str] = []

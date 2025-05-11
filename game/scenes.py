@@ -2,17 +2,23 @@ from ui.Scene import Scene
 from ui.Renderer import AsciiText
 from ui.Menu import Menu
 from ui.Colors import Colors
+from game.init import init_game
 
 game_mode:bool|None = None
 scenes:list[Scene] = []
+
+def start(mode:bool) -> None:
+    gameManager = init_game(mode)
+    print(gameManager)
+    gameManager.menu.start()
+
+    if gameManager.won:
+        use_scene(scene_end())
 
 def use_scene(scene:Scene) -> None:
     print(scene)
     scene.start()
     scenes.append(scene)
-
-def get_gamemode() -> bool|None:
-    return game_mode
 
 def exit_game() -> None:
     for scene in scenes:
@@ -36,10 +42,6 @@ def scene_main() -> Scene:
     return scene
 
 def scene_game_mode() -> Scene:
-    def set_gamemode(mode:bool) -> None:
-        global game_mode
-        game_mode = mode
-
     scene:Scene = Scene()
     scene += AsciiText("Difficulty", 'blue')
 
@@ -47,8 +49,8 @@ def scene_game_mode() -> Scene:
         update=lambda: print(scene),
         highlight='green',
         text=[
-            ('Easy',   lambda: set_gamemode(True)),
-            ('Hard',   lambda: set_gamemode(False)),
+            ('Easy',   lambda: start(True)),
+            ('Hard',   lambda: start(False)),
             ('\nBack', lambda: use_scene(scene_main()))
         ]
     )

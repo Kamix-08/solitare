@@ -84,22 +84,19 @@ class HorizontalMenu(BaseMenu):
             execute:Callable[[tuple[int,int]], Any],
             moving:list[KeyLike] = [keyboard.Key.left, keyboard.Key.right, keyboard.Key.up, keyboard.Key.down], 
             sumbit:KeyLike = keyboard.Key.enter,
-            cancel:tuple[KeyLike,Callable]|None = None) -> None:
+            other:dict[KeyLike,Callable]|None = None) -> None:
 
         assert len(moving) == 4
 
         super().__init__(update, highlight[0], [], moving[:2], sumbit, other={
             moving[2]: lambda: self.change_secondary_selection(-1),
             moving[3]: lambda: self.change_secondary_selection( 1)
-        })
+        } | (other if other is not None else {}))
 
         self.get_struct:Callable[[], list[int]] = get_structure
         self.execute:Callable[[tuple[int,int]], Any] = execute
         self.idxs:list[int] = [0] * len(self.get_struct())
         self.color_secondary:str|tuple[int,int,int] = highlight[1]
-
-        if cancel is not None:
-            self.ih.add(cancel[0], lambda: (cancel[1](), self.update()))
 
     def change_selection(self, change:int, update:bool = True) -> None:
         self.idx = (self.idx + change) % len(self.get_struct())
