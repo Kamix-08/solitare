@@ -1,6 +1,7 @@
 from .Pile import *
 from ui.Menu import HorizontalMenu, keyboard
 from ui.Renderer import Renderer
+import time
 
 class GameManager:
     def init_cards(self) -> None:
@@ -43,6 +44,10 @@ class GameManager:
         self.mode:bool = easy_mode
         self.won:bool = False
         self.escs:int = 0
+        self.moves:int = 0
+
+        self.history:list[tuple[list[GamePile],list[FinalPile],tuple[ReservePile,GamePile]]] = []
+        self.time:float = time.time()
 
         self.init_cards()
         self.init_piles(easy_mode)
@@ -55,7 +60,8 @@ class GameManager:
             lambda x: self.execute(x),
             other={
                 keyboard.Key.esc: self.handle_esc,
-                keyboard.Key.tab: self.solve
+                keyboard.Key.tab: self.solve,
+                keyboard.Key.backspace: self.back
             }
         )
 
@@ -93,6 +99,7 @@ class GameManager:
                 if self.selected is not None: return # do nothing
                 if len(self.reserve_pile[i]) == 0: return # do nothing
                 if i == 0: # draw
+                    self.add_to_history()
                     for _ in range(1 if self.mode else max(1, min(3, len(self.reserve_pile[0]) - 1))):
                         self.move_card(-1, self.reserve_pile[0], self.reserve_pile[1], True)
                 else: self.selected = choice # select
@@ -100,6 +107,7 @@ class GameManager:
                 if self.selected is None:
                     if len(self.final_piles[i]) != 0: self.selected = choice # select
                 else:
+                    self.add_to_history()
                     self.move_selected(self.final_piles[i]) # move
             case _: # game
                 i1:int = choice[0] - 1
@@ -108,6 +116,7 @@ class GameManager:
                     return # do nothing
                 if self.selected is None and len(self.game_piles[i1]) != 0: self.selected = choice # select
                 elif self.selected is not None:
+                    self.add_to_history()
                     self.move_selected(self.game_piles[i1]) # move
 
     def move_card(self, i:int, _from:Pile, _to:Pile, force:bool = False) -> bool:
@@ -169,6 +178,23 @@ class GameManager:
 
         print(self)
 
+    def add_to_history(self) -> None:
+        self.history.append((
+            copy.deepcopy(self.game_piles), 
+            copy.deepcopy(self.final_piles), 
+            copy.deepcopy(self.reserve_pile)
+        ))
+
+        self.moves += 1
+        if len(self.history) > 3: self.history.pop(0)
+
+    def back(self) -> bool:
+        if len(self.history) == 0: return False
+        self.game_piles, self.final_piles, self.reserve_pile = self.history.pop()
+        self.moves -= 1
+        print(self)
+        return True
+
     def end(self, won:bool = True) -> None:
         self.won = won
         self.menu.stop()
@@ -182,7 +208,7 @@ class GameManager:
         return True
     
     def __str__(self) -> str:
-        text:list[str] = []
+        text:list[str] = [f"Moves: {self.moves}", f"Time : {Renderer.format_seconds(time.time() - self.time)}"]
 
         objects_unflattened:list[list[list[str]]] = []
         objects:list[list[str]] = []

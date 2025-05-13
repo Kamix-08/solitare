@@ -54,6 +54,11 @@ class Renderer:
     def init() -> None:
         Renderer.init_ascii_font()
 
+    @staticmethod
+    def format_seconds(sec:float) -> str:
+        s = int(sec)
+        return f"{(s // 3600):02}:{((s % 3600) // 60):02}:{(s % 60):02}"
+
 class AsciiText:
     def __init__(self, text:str, color:str|tuple[int,int,int] = "") -> None:
         self.text:str = text

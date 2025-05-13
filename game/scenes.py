@@ -1,8 +1,9 @@
 from ui.Scene import Scene
-from ui.Renderer import AsciiText
+from ui.Renderer import AsciiText, Renderer
 from ui.Menu import Menu
 from ui.Colors import Colors
 from game.init import init_game
+import time
 
 game_mode:bool|None = None
 scenes:list[Scene] = []
@@ -12,8 +13,11 @@ def start(mode:bool) -> None:
     print(gameManager)
     gameManager.menu.start()
 
-    if gameManager.won:
-        use_scene(scene_end())
+    use_scene(scene_end(
+        gameManager.won, 
+        gameManager.moves,
+        time.time() - gameManager.time
+    ))
 
 def use_scene(scene:Scene) -> None:
     print(scene)
@@ -78,9 +82,12 @@ def scene_info() -> Scene:
     scene += menu
     return scene
 
-def scene_end() -> Scene:
+def scene_end(won:bool, moves:int, time:float) -> Scene:
     scene:Scene = Scene()
-    scene += AsciiText("You won!", 'blue')
+    scene += AsciiText("You won!" if won else "You lost...", 'blue' if won else 'red')
+
+    scene += f"Moves: {moves}"
+    scene += f"Time : {Renderer.format_seconds(time)}"
 
     menu:Menu = Menu(
         update=lambda: print(scene), 
