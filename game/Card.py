@@ -68,8 +68,6 @@ class Card:
     
     @staticmethod
     def _get_full(text:str='', pre:str='', suf:str='') -> list[str]:
-        # temp solution
-        # the pattern is missing
         return [Card.get_top(), Card.get_normal(text, pre=pre, suf=suf)] + [Card.get_normal()] * (Card.HEIGHT - 1) + [Card.get_bottom()]
     
     @staticmethod

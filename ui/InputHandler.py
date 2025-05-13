@@ -16,6 +16,7 @@ class InputHandler():
             callback()
 
     def callback(self, key:Key) -> None:
+        # print("callbacks for", key)
         if key in self.callbacks:
             InputHandler.call(self.callbacks[key])
 

@@ -19,6 +19,6 @@ if __name__ == "__main__":
             msvcrt.getch()      # type: ignore[attr-defined]
     else:
         import termios
-        termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)
+        termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)    # type: ignore[attr-defined]
 
     Renderer.clear()

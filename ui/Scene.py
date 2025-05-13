@@ -22,6 +22,7 @@ class Scene:
 
     def __str__(self) -> str:
         res:str = Renderer.get_clear()
+        # res:str = ""
 
         for element in self.content:
             res += str(element)

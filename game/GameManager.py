@@ -160,13 +160,14 @@ class GameManager:
         if self.selected is not None:
             self.selected = None
             self.escs = 0
-            return
-        
-        self.escs += 1
-        if self.escs >= 2:
-            self.end(False)
+
         else:
-            print("Press ESC again to exit...")
+            self.escs += 1
+            if self.escs >= 2:
+                self.end(False)
+                return
+
+        print(self)
 
     def end(self, won:bool = True) -> None:
         self.won = won
@@ -232,6 +233,9 @@ class GameManager:
                 line += obj[n]
 
             text.append(line)
+            
+        if self.escs > 0:
+            text.append("\nPress ESC again to exit...")
 
         # return '\n'.join(text)
         return Renderer.get_clear() + '\n'.join(text)
