@@ -46,7 +46,7 @@ class GameManager:
         self.escs:int = 0
         self.moves:int = 0
 
-        self.history:list[tuple[list[GamePile],list[FinalPile],tuple[ReservePile,GamePile]]] = []
+        self.history:list[tuple[list[GamePile],list[FinalPile],tuple[ReservePile,GamePile],tuple[int,int]]] = []
         self.time:float = time.time()
 
         self.init_cards()
@@ -182,7 +182,8 @@ class GameManager:
         self.history.append((
             copy.deepcopy(self.game_piles), 
             copy.deepcopy(self.final_piles), 
-            copy.deepcopy(self.reserve_pile)
+            copy.deepcopy(self.reserve_pile),
+            self.menu.get_highlight()
         ))
 
         self.moves += 1
@@ -190,7 +191,11 @@ class GameManager:
 
     def back(self) -> bool:
         if len(self.history) == 0: return False
-        self.game_piles, self.final_piles, self.reserve_pile = self.history.pop()
+        self.game_piles, self.final_piles, self.reserve_pile, tmp = self.history.pop()
+
+        self.menu.idx = tmp[0]
+        self.menu.idxs[tmp[0]] = tmp[1]
+
         self.moves -= 1
         print(self)
         return True
