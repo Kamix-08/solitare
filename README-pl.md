@@ -19,7 +19,7 @@ python main.py
 ```
 
 > [!NOTE] 
-> Wymaga zainstalowanego i skonfigurowanego Pythona
+> Wymaga zainstalowanego i skonfigurowanego Pythona.
 > Zalecana wersja to 3.12.x
 
 3. _(opcjonalne)_ Sprawdź poprawność typów:

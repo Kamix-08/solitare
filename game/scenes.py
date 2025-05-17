@@ -89,7 +89,7 @@ def scene_end(mode:bool, won:bool, moves:int, time:float) -> Scene:
     scene:Scene = Scene()
     scene += AsciiText("You won!" if won else "You lost...", 'blue' if won else 'red')
 
-    scene += f"Mode : {"easy" if mode else "hard"}"
+    scene += f"Mode : {'easy' if mode else 'hard'}"
     scene += f"Moves: {moves}"
     scene += f"Time : {Renderer.format_seconds(time)}"
 
