@@ -27,7 +27,8 @@ To finally execute the program, run
 python main.py
 ```
 
-> [!NOTE] This requires Python already installed. 
+> [!NOTE] 
+> This requires Python already installed. 
 > Recommended version is 3.12.x
 
 The project has [`mypy.ini`](./mypy.ini) configured, allowing you to run
