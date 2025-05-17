@@ -3,7 +3,7 @@ from ui.Renderer import AsciiText, Renderer
 from ui.Menu import Menu
 from ui.Colors import Colors
 from game.init import init_game
-import time
+import time, os
 
 game_mode:bool|None = None
 scenes:list[Scene] = []
@@ -137,6 +137,9 @@ def scene_leaderboard(mode:bool|None = None, won:bool = False) -> Scene:
     scene += AsciiText("Leaderboard", 'blue')
     
     flag:str = 'e' if mode else 'h'
+    
+    if not os.path.exists('leaderboard.txt'):
+        open('leaderboard.txt', 'w').close()
     
     with open('leaderboard.txt', 'r') as f:
         entries:list[str] = f.readlines()
