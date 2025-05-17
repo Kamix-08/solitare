@@ -34,6 +34,8 @@ System sterowania jest intuicyjny - używaj klawiszy strzałek do poruszania si�
 
 W trakcie gry klawisz Esc pozwala anulować zaznaczenie lub wyjść z gry.
 
+Klawisz Backspace pozwala cofnąć ostatni ruch (max 3 razy), zaś Tab pozwala auto-uzupełnić rozgrywkę, kiedy jest to możliwe.
+
 W menu wskaźnik zaznaczenia jest zielony, w scenie gry - niebieski. Zaznaczone elementy mają kolor fioletowy.
 
 Aby przenieść kartę, zaznacz ją, a następnie wybierz miejsce docelowe.

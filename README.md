@@ -45,6 +45,8 @@ The controls are intuitive - use the arrow keys to move (the selection is usuall
 
 Use Enter to select (will light up in magenta) and Esc to cancel/exit in the game scene.
 
+Use Backspace to undo your last move (up to three moves) and Tab to auto-complete the game, when possible.
+
 ### Game
 
 To move a card, first select it, and then select the place you want to move it.
