@@ -96,7 +96,9 @@ class GameManager:
 
         match choice[0]:
             case 0: # reserve
-                if self.selected is not None: return # do nothing
+                if self.selected is not None:
+                    self.selected = None
+                    return # do nothing
                 if len(self.reserve_pile[i]) == 0: return # do nothing
                 if i == 0: # draw
                     self.add_to_history()

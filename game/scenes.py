@@ -72,6 +72,7 @@ def scene_info() -> Scene:
     scene += "The program has been developed as a part of the Gigathon 2025 competition."
     scene += "\nThe game is a simple solitare game, featuring two difficulty modes:"
     scene += "Easy allows for drawing one card at a time, while hard only allows three cards at a time."
+    scene += f"\nMore information and a technical documentation can be found in the project directory, or the GitHub repository ({Colors.get_color('cyan')}https://github.com/Kamix-08/solitare{Colors.get_prev_color()})."
 
     menu:Menu = Menu(
         update=lambda: print(scene),
@@ -97,7 +98,7 @@ def scene_end(mode:bool, won:bool, moves:int, time:float) -> Scene:
         highlight='green',
         text=[
             ('Play Again',  lambda: use_scene(scene_game_mode())),
-            ('Leaderboard', lambda: use_scene(scene_leaderboard(mode))),
+            ('Leaderboard', lambda: use_scene(scene_leaderboard(mode, won))),
             ('Main Menu',   lambda: use_scene(scene_main())),
             ('\nExit',      lambda: exit_game())
         ]
@@ -118,19 +119,20 @@ def format_table(data:list[list[str]], headers:list[str]) -> list[str]:
         return ' ' + ' | '.join(elements) + ' '
     
     def center(element:str, width:int) -> str:
-        n:int = (width - len(element)) // 2
+        n:int = (width - len(Colors.regex().sub('', element))) // 2
         return ' ' * n + element + ' ' * (width - n - len(element))
     
     widths:list[int] = [max([len(headers[i])] + [len(x[i]) for x in data]) for i in range(len(headers))]
     
     res:list[str] = [get_line([center(x, widths[i]) for i, x in enumerate(line)]) for line in [headers] + data]
     
+    n:int = len(res[0])
     for i in range(len(res) - 1):
-        res[i] += f"\n{'-' * len(res[i])}"
+        res[i] += f"\n{'-' * n}"
     
     return res
 
-def scene_leaderboard(mode:bool|None = None) -> Scene:
+def scene_leaderboard(mode:bool|None = None, won:bool = False) -> Scene:
     scene:Scene = Scene()
     scene += AsciiText("Leaderboard", 'blue')
     
@@ -144,6 +146,7 @@ def scene_leaderboard(mode:bool|None = None) -> Scene:
     def parse_entry(entry:str) -> tuple[int,bool]:
         return int(entry[1:]), entry[0] == 'h'
     
+    v:int = -1
     for entry in entries:
         if mode is not None and entry[0] != flag:
             continue
@@ -155,12 +158,15 @@ def scene_leaderboard(mode:bool|None = None) -> Scene:
         x.sort()
     
     table:list[list[str]] = []
+    found_last:bool = False
     for i in range(max([len(x) for x in data])):
         line:list[str] = [f"{i+1}."]
         
         for x in data:
             if len(x) == 0 and mode is not None: continue
-            line.append(str(x[i]) if i < len(x) else '-')
+            is_last:bool = mode is not None and not found_last and x[i] == v
+            line.append(((Colors.get_color('red' if won else '') if is_last else '') + str(x[i]) + (Colors.get_prev_color() if is_last else '')) if i < len(x) else '-')
+            if is_last: found_last = True
         
         table.append(line)
         

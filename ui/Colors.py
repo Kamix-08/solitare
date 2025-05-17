@@ -13,7 +13,8 @@ class Colors:
         "default": "\x1b[39m",
         "clear": "\x1b[0m",
         "bold": "\x1b[1m",
-        "dim": "\x1b[2m"
+        "dim": "\x1b[2m",
+        "": ""
     }
 
     stack:list[str] = []
@@ -24,9 +25,6 @@ class Colors:
 
     @staticmethod
     def get_color(color:str|tuple[int, int, int], append:bool = True) -> str:
-        if color == "":
-            return ""
-        
         esc_code:str = ""
 
         if type(color) == str:
@@ -48,7 +46,6 @@ class Colors:
 
     @staticmethod
     def get_prev_color(pop:bool = True) -> str:
-        assert len(Colors.stack) != 0
         if pop: Colors.stack.pop()
         if len(Colors.stack) == 0: return Colors.get_color('default', False)
         return Colors.stack[-1]
